@@ -34,8 +34,54 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final realController = TextEditingController();
+  final usdController = TextEditingController();
+  final eurController = TextEditingController();
+
   double dollar;
   double euro;
+
+  void _clearAll() {
+    realController.text = "";
+    usdController.text = "";
+    eurController.text = "";
+  }
+
+  void _realChanged(String value) {
+    if (value.isEmpty) {
+      _clearAll();
+      return;
+    }
+
+    double real = double.parse(value);
+
+    usdController.text = (real / this.dollar).toStringAsFixed(2);
+    eurController.text = (real / this.euro).toStringAsFixed(2);
+  }
+
+  void _usdChanged(String value) {
+    if (value.isEmpty) {
+      _clearAll();
+      return;
+    }
+
+    double usd = double.parse(value);
+
+    realController.text = (this.dollar * usd).toStringAsFixed(2);
+    eurController.text = (this.dollar * usd / this.euro).toStringAsFixed(2);
+  }
+
+  void _eurChanged(String value) {
+    if (value.isEmpty) {
+      _clearAll();
+      return;
+    }
+
+    double eur = double.parse(value);
+
+    realController.text = (this.euro * eur).toStringAsFixed(2);
+    usdController.text = (this.euro * eur / this.dollar).toStringAsFixed(2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,44 +135,13 @@ class _HomeState extends State<Home> {
                         color: Colors.amber,
                       ),
                       Divider(),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: "Reais",
-                          labelStyle: TextStyle(color: Colors.amber),
-                          border: OutlineInputBorder(),
-                          prefixText: "R\$",
-                        ),
-                        style: TextStyle(
-                          color: Colors.amber,
-                          fontSize: 22.0,
-                        ),
-                      ),
+                      buildTextField(
+                          "Reais", "R\$", realController, _realChanged),
                       Divider(),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: "Dollares",
-                          labelStyle: TextStyle(color: Colors.amber),
-                          border: OutlineInputBorder(),
-                          prefixText: "US\$",
-                        ),
-                        style: TextStyle(
-                          color: Colors.amber,
-                          fontSize: 22.0,
-                        ),
-                      ),
+                      buildTextField(
+                          "Dolares", "US\$", usdController, _usdChanged),
                       Divider(),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: "Euros",
-                          labelStyle: TextStyle(color: Colors.amber),
-                          border: OutlineInputBorder(),
-                          prefixText: "€",
-                        ),
-                        style: TextStyle(
-                          color: Colors.amber,
-                          fontSize: 22.0,
-                        ),
-                      ),
+                      buildTextField("Euros", "€", eurController, _eurChanged),
                     ],
                   ),
                 );
@@ -136,4 +151,23 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+}
+
+Widget buildTextField(String label, String prefix,
+    TextEditingController controller, Function function) {
+  return TextField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.amber),
+      border: OutlineInputBorder(),
+      prefixText: prefix,
+    ),
+    style: TextStyle(
+      color: Colors.amber,
+      fontSize: 22.0,
+    ),
+    onChanged: function,
+    keyboardType: TextInputType.number,
+  );
 }
